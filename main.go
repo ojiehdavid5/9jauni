@@ -18,9 +18,8 @@ type uniARequest struct {
 	Abbreviation string `json:"abbreviation"`
 	WebsiteLink  string `json:"website_link"`
 }
-type Abbreviation struct{
+type Abbreviation struct {
 	Abbreviation string `json:"abbreviation"`
-
 }
 
 func convertUniStruct() []uniRequest {
@@ -92,20 +91,24 @@ func getAUniByAB(w http.ResponseWriter, r *http.Request) {
 	}
 	decoder := json.NewDecoder(r.Body)
 
-	var myUni uniARequest
+	var myUni Abbreviation
 
 	decoder = json.NewDecoder(r.Body)
 	if err := decoder.Decode(&myUni); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Println(myUni)
+	// fmt.Println(myUni)
+	result := convertUniStruct()
+	fmt.Println(result)
 	for _, uni := range convertUniStruct() {
-		if uni.Abbreviation == myUni.Abbreviation{
+		if uni.Abbreviation == myUni.Abbreviation {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(uni)
 			return
 		}
+		fmt.Println(uni)
+
 		// else{
 		// 	http.Error(w, "University not found", http.StatusNotFound)
 		// 	return
