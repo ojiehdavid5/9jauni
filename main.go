@@ -89,35 +89,33 @@ func getAUniByAB(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
-	decoder := json.NewDecoder(r.Body)
 
-	var myUni Abbreviation
+	// Get the abbreviation from the query parameters
+	q := r.URL.Query()
+	abbr := q.Get("abbreviation")
+	fmt.Println(abbr)
 
-	decoder = json.NewDecoder(r.Body)
-	if err := decoder.Decode(&myUni); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	// Check if the abbreviation is provided
+	if abbr == "" {
+		http.Error(w, "Abbreviation is required", http.StatusBadRequest)
 		return
 	}
-	// fmt.Println(myUni)
-	result := convertUniStruct()
-	fmt.Println(result)
-	for _, uni := range convertUniStruct() {
-		if uni.Abbreviation == myUni.Abbreviation {
+
+	// Retrieve the list of universities
+	universities := convertUniStruct()
+
+	// Find the university matching the abbreviation
+	for _, uni := range universities {
+		if uni.Abbreviation == abbr {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(uni)
 			return
 		}
-		fmt.Println(uni)
-
-		// else{
-		// 	http.Error(w, "University not found", http.StatusNotFound)
-		// 	return
-		// }
-
 	}
 
+	// If not found, return a 404 error
+	http.Error(w, "University not found", http.StatusNotFound)
 }
-
 func main() {
 	convertUniStruct()
 	fmt.Println("hello")
