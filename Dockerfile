@@ -65,10 +65,16 @@ RUN adduser \
     --no-create-home \
     --uid "${UID}" \
     appuser
+    
 USER appuser
+# Copy the rest of the code (including json folder)
+COPY . .
+
 
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
+
+
 
 # Expose the port that the application listens on.
 EXPOSE 8080
