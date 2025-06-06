@@ -21,6 +21,23 @@ type uniARequest struct {
 type Abbreviation struct {
 	Abbreviation string `json:"abbreviation"`
 }
+type errorResponse struct {
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+}
+
+
+func apiError(w http.ResponseWriter, errResponse errorResponse) error {
+	w.WriteHeader(errResponse.Code)
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(errResponse); err != nil {
+		return fmt.Errorf("failed to encode error response: %w", err)
+	}
+
+	return nil
+}
+
 
 func convertUniStruct() []uniRequest {
 
@@ -41,7 +58,10 @@ func convertUniStruct() []uniRequest {
 
 func getAllUni(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		apiError(w, errorResponse{
+			Message: "Invalid request method",
+			Code:    http.StatusMethodNotAllowed,
+		})
 		return
 	}
 	result := convertUniStruct()
@@ -51,13 +71,20 @@ func getAllUni(w http.ResponseWriter, r *http.Request) {
 
 	// Encode the result directly to the response writer
 	if err := json.NewEncoder(w).Encode(result); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		apiError(w, errorResponse{
+			Message: "Failed to encode response",
+			Code:    http.StatusInternalServerError,
+		})
+		return
 	}
 }
 
 func getAUni(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		apiError(w, errorResponse{
+			Message: "Invalid request method",
+			Code:    http.StatusMethodNotAllowed,
+		})
 		return
 	}
 	decoder := json.NewDecoder(r.Body)
@@ -66,7 +93,10 @@ func getAUni(w http.ResponseWriter, r *http.Request) {
 
 	decoder = json.NewDecoder(r.Body)
 	if err := decoder.Decode(&myUni); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		apiError(w, errorResponse{
+			Message: "Failed to decode request",
+			Code:    http.StatusBadRequest,
+		})
 		return
 	}
 	fmt.Println(myUni)
@@ -86,7 +116,10 @@ func getAUni(w http.ResponseWriter, r *http.Request) {
 }
 func getAUniByAB(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		apiError(w, errorResponse{
+			Message: "Method not allowed",
+			Code:    http.StatusMethodNotAllowed,
+		})
 		return
 	}
 
@@ -97,7 +130,10 @@ func getAUniByAB(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the abbreviation is provided
 	if abbr == "" {
-		http.Error(w, "Abbreviation is required", http.StatusBadRequest)
+		apiError(w, errorResponse{
+			Message: "Abbreviation is required",
+			Code:    http.StatusBadRequest,
+		})
 		return
 	}
 
@@ -114,8 +150,13 @@ func getAUniByAB(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If not found, return a 404 error
-	http.Error(w, "University not found", http.StatusNotFound)
+	apiError(w, errorResponse{
+		Message: "University not found",
+		Code:    http.StatusNotFound,
+	})
+	return
 }
+
 func main() {
 	convertUniStruct()
 	fmt.Println("hello")

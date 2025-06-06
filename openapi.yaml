@@ -1,0 +1,84 @@
+openapi: 3.0.3
+info:
+  title: Nigerian Universities API
+  description: An API to get Nigerian universities by name or abbreviation.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /:
+    get:
+      summary: Get all universities
+      responses:
+        '200':
+          description: A list of all universities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/University'
+
+  /search:
+    post:
+      summary: Get a university by name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UniversityNameRequest'
+      responses:
+        '200':
+          description: University found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/University'
+        '404':
+          description: University not found
+        '400':
+          description: Invalid request format
+
+  /searchab:
+    get:
+      summary: Get a university by abbreviation
+      parameters:
+        - name: abbreviation
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: University found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/University'
+        '400':
+          description: Missing abbreviation query parameter
+        '404':
+          description: University not found
+
+components:
+  schemas:
+    University:
+      type: object
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type: string
+        website_link:
+          type: string
+
+    UniversityNameRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
