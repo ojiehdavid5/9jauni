@@ -1,0 +1,86 @@
+openapi: 3.0.3
+info:
+  description: An API to get Nigerian universities by name or abbreviation.
+  title: Nigerian Universities API
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+paths:
+  /:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/University'
+                type: array
+          description: A list of all universities
+      summary: Get all universities
+  /search:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UniversityNameRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/University'
+          description: University found
+        "404":
+          description: University not found
+        "400":
+          description: Invalid request format
+      summary: Get a university by name
+  /searchab:
+    get:
+      parameters:
+      - explode: true
+        in: query
+        name: abbreviation
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/University'
+          description: University found
+        "400":
+          description: Missing abbreviation query parameter
+        "404":
+          description: University not found
+      summary: Get a university by abbreviation
+components:
+  schemas:
+    University:
+      example:
+        website_link: website_link
+        name: name
+        abbreviation: abbreviation
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type: string
+        website_link:
+          type: string
+      type: object
+    UniversityNameRequest:
+      example:
+        name: name
+      properties:
+        name:
+          type: string
+      required:
+      - name
+      type: object
