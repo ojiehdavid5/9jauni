@@ -41,7 +41,8 @@ func apiError(w http.ResponseWriter, errResponse errorResponse) error {
 
 func convertUniStruct() []uniRequest {
 
-	uni, err := os.ReadFile("/Users/user/go/src/9jauni/json/uni.json")
+	uni, err := os.ReadFile("json/uni.json")
+
 	if err != nil {
 		log.Fatalf("an error occured: %v", err)
 	}
