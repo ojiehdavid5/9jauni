@@ -27,6 +27,23 @@ type errorResponse struct {
 }
 
 
+func withCORS(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		// Handle preflight request
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
+	}
+}
+
+
 func apiError(w http.ResponseWriter, errResponse errorResponse) error {
 	w.WriteHeader(errResponse.Code)
 	w.Header().Set("Content-Type", "application/json")
@@ -65,11 +82,6 @@ func getAllUni(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
 	result := convertUniStruct()
 
 	// Set the response header to indicate JSON content
@@ -93,11 +105,6 @@ func getAUni(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
 	decoder := json.NewDecoder(r.Body)
 
 	var myUni uniARequest
@@ -133,11 +140,6 @@ func getAUniByAB(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
 
 	// Get the abbreviation from the query parameters
 	q := r.URL.Query()
@@ -176,9 +178,9 @@ func getAUniByAB(w http.ResponseWriter, r *http.Request) {
 func main() {
 	convertUniStruct()
 	fmt.Println("hello")
-	http.HandleFunc("/", getAllUni)
-	http.HandleFunc("/search", getAUni)
-	http.HandleFunc("/searchab", getAUniByAB)
+	http.HandleFunc("/", withCORS(getAllUni))
+	http.HandleFunc("/search", withCORS(getAUni))
+	http.HandleFunc("/searchab", withCORS(getAUniByAB))
 	http.ListenAndServe(":8080", nil)
 	fmt.Println("Server started at :8080")
 }
