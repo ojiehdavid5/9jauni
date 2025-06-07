@@ -65,6 +65,11 @@ func getAllUni(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 	result := convertUniStruct()
 
 	// Set the response header to indicate JSON content
@@ -88,6 +93,11 @@ func getAUni(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 	decoder := json.NewDecoder(r.Body)
 
 	var myUni uniARequest
@@ -123,6 +133,11 @@ func getAUniByAB(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 
 	// Get the abbreviation from the query parameters
 	q := r.URL.Query()
